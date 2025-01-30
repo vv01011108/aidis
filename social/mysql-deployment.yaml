@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:latest
+          env:
+            - name: MySQL_USER
+              value: "root"
+            - name: MYSQL_ROOT_PASSWORD
+              value: "1234"  # 루트 비밀번호만 설정
+            - name: MYSQL_DATABASE
+              value: "social"  # 기본 데이터베이스 이름 설정
+          ports:
+            - containerPort: 3306
