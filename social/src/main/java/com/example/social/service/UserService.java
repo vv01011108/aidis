@@ -50,15 +50,23 @@ public class UserService {
     }
 
     // 로그인 인증
-    public Object authenticate(LoginRequestDTO loginRequestDTO) {
-        // 이메일로 사용자 검색
-        User user = userRepository.findByEmail(loginRequestDTO.getEmail()).orElse(null);
+    public User authenticate(String email, String password) {
 
-        if (user != null && passwordEncoder.matches(loginRequestDTO.getPassword(), user.getPassword())) {
-            return user; // 로그인 성공
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+
+        // 사용자가 없으면 예외를 던짐
+        if (!optionalUser.isPresent()) {
+            throw new IllegalArgumentException("이메일이 존재하지 않습니다.");
         }
 
-        return null; // 로그인 실패
+        User user = optionalUser.get();
+
+        // 비밀번호가 일치하지 않으면 예외를 던짐
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 올바르지 않습니다.");
+        }
+
+        return user;
     }
 
     public User getUserById(Long userId) {

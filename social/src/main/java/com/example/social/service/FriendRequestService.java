@@ -1,9 +1,12 @@
 package com.example.social.service;
 
-import com.example.social.entity.FriendRequest;
+import com.example.social.dto.FriendRequestDTO;
+import com.example.social.entity.Friend;
 import com.example.social.entity.User;
 import com.example.social.repository.FriendRequestRepository;
 import com.example.social.repository.UserRepository;
+import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,7 +23,15 @@ public class FriendRequestService {
         this.userRepository = userRepository;
     }
 
-    public FriendRequest sendFriendRequest(Long senderId, Long receiverId) {
+    // FriendRequestDTO를 사용하여 친구 요청을 보냄
+    @Transactional
+    public Friend sendFriendRequest(Long senderId, FriendRequestDTO friendRequestDTO) {
+        Long receiverId = friendRequestDTO.getReceiverId();
+
+        if (senderId == null) {
+            throw new IllegalArgumentException("로그인 상태가 아닙니다.");
+        }
+
         if (senderId.equals(receiverId)) {
             throw new IllegalArgumentException("본인에게 친구 요청을 보낼 수 없습니다.");
         }
@@ -31,46 +42,46 @@ public class FriendRequestService {
         // 중복 요청 방지 (PENDING 상태 확인 포함)
         friendRequestRepository.findBySenderAndReceiver(sender, receiver)
                 .ifPresent(request -> {
-                    if (request.getStatus() == FriendRequest.Status.PENDING) {
+                    if (request.getStatus() == Friend.Status.PENDING) {
                         throw new IllegalArgumentException("이미 대기 중인 친구 요청이 있습니다.");
                     }
                 });
 
-        FriendRequest friendRequest = new FriendRequest();
+        Friend friendRequest = new Friend();
         friendRequest.setSender(sender);
         friendRequest.setReceiver(receiver);
-        friendRequest.setStatus(FriendRequest.Status.PENDING);
+        friendRequest.setStatus(Friend.Status.PENDING);
 
         return friendRequestRepository.save(friendRequest);
     }
 
-    public Optional<FriendRequest.Status> getRequestStatus(Long senderId, Long receiverId) {
+    public Optional<Friend.Status> getRequestStatus(Long senderId, Long receiverId) {
         User sender = getUserById(senderId, "발신자를 찾을 수 없습니다.");
         User receiver = getUserById(receiverId, "수신자를 찾을 수 없습니다.");
 
         return friendRequestRepository.findBySenderAndReceiver(sender, receiver)
-                .map(FriendRequest::getStatus);
+                .map(Friend::getStatus);
     }
 
-    public FriendRequest acceptRequest(Long requestId) {
-        FriendRequest friendRequest = getFriendRequestById(requestId, "친구 요청을 찾을 수 없습니다.");
+    public Friend acceptRequest(Long requestId) {
+        Friend friendRequest = getFriendRequestById(requestId, "친구 요청을 찾을 수 없습니다.");
 
-        if (friendRequest.getStatus() != FriendRequest.Status.PENDING) {
+        if (friendRequest.getStatus() != Friend.Status.PENDING) {
             throw new IllegalArgumentException("이미 처리된 요청입니다.");
         }
 
-        friendRequest.setStatus(FriendRequest.Status.ACCEPTED);
+        friendRequest.setStatus(Friend.Status.ACCEPTED);
         return friendRequestRepository.save(friendRequest);
     }
 
     public void deleteRequest(Long requestId) {
-        FriendRequest friendRequest = getFriendRequestById(requestId, "친구 요청을 찾을 수 없습니다.");
+        Friend friendRequest = getFriendRequestById(requestId, "친구 요청을 찾을 수 없습니다.");
         friendRequestRepository.delete(friendRequest);
     }
 
-    public List<FriendRequest> getPendingRequests(Long userId) {
+    public List<Friend> getPendingRequests(Long userId) {
         User receiver = getUserById(userId, "사용자를 찾을 수 없습니다.");
-        return friendRequestRepository.findByReceiverAndStatus(receiver, FriendRequest.Status.PENDING);
+        return friendRequestRepository.findByReceiverAndStatus(receiver, Friend.Status.PENDING);
     }
 
     private User getUserById(Long userId, String errorMessage) {
@@ -78,7 +89,7 @@ public class FriendRequestService {
                 .orElseThrow(() -> new IllegalArgumentException(errorMessage));
     }
 
-    private FriendRequest getFriendRequestById(Long requestId, String errorMessage) {
+    private Friend getFriendRequestById(Long requestId, String errorMessage) {
         return friendRequestRepository.findById(requestId)
                 .orElseThrow(() -> new IllegalArgumentException(errorMessage));
     }

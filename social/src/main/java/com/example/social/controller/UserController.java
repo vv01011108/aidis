@@ -4,6 +4,7 @@ import com.example.social.dto.LoginRequestDTO;
 import com.example.social.dto.SignupRequestDTO;
 import com.example.social.entity.User;
 import com.example.social.service.UserService;
+import com.example.social.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,6 +12,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -24,12 +26,14 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-// @CrossOrigin(origins = "https://65d4-211-216-41-180.ngrok-free.app")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @RequestMapping("/api/users")
 public class UserController {
 
     @Autowired
     private UserService userService;
+
+    // private final JwtUtil jwtUtil = new JwtUtil();
 
     // 회원가입 처리
     @PostMapping("/signup")
@@ -60,6 +64,7 @@ public class UserController {
     }
 
     private String savePhoto(MultipartFile photo) throws IOException {
+
         // 파일 이름 중복 방지를 위해 UUID를 사용
         String filename = UUID.randomUUID().toString() + "_" + photo.getOriginalFilename();
         String uploadDir = "uploads/";
@@ -69,41 +74,23 @@ public class UserController {
         Files.write(path, photo.getBytes());
 
         // 반환 경로를 URL로 변환
-        return "https://77b5-211-216-41-180.ngrok-free.app/" + uploadDir + filename;  // 외부 IP로 경로 수정
+        return "http://localhost:8080/" + uploadDir + filename;
     }
 
     // 로그인 처리
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequestDTO loginRequestDTO, HttpSession session, HttpServletResponse response) {
-        try {
-            // 로그인 인증 후 사용자 객체를 반환
-            Object user = userService.authenticate(loginRequestDTO);
-
-            if (user != null) {
-                // 로그인 성공 시 세션에 사용자 정보 저장
-                session.setAttribute("user", user);
-
-                // JSESSIONID 쿠키를 세팅
-                Cookie cookie = new Cookie("JSESSIONID", session.getId());
-                cookie.setSecure(true); // HTTPS 연결에서만 쿠키를 전송
-                cookie.setHttpOnly(true); // JavaScript에서 접근할 수 없도록 설정
-                cookie.setPath("/"); // 전체 사이트에서 사용할 수 있도록 설정
-                cookie.setMaxAge(60 * 60 * 24); // 쿠키의 유효 기간 설정 (예: 1일)
-
-                // SameSite 설정은 헤더로 직접 설정
-                response.addHeader("Set-Cookie", "JSESSIONID=" + session.getId() + "; SameSite=None; Secure; HttpOnly; Path=/");
-
-                return ResponseEntity.status(200).body("로그인 성공!");
-            } else {
-                return ResponseEntity.status(401).body("이메일 또는 비밀번호가 잘못되었습니다.");
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("로그인 중 오류 발생: " + e.getMessage());
+    public ResponseEntity<String> login(@RequestBody LoginRequestDTO requestDTO, HttpSession session) {
+        User user = userService.authenticate(requestDTO.getEmail(), requestDTO.getPassword());
+        if (user != null) {
+            session.setAttribute("user", user); // 세션에 사용자 정보 저장
+            return ResponseEntity.ok("로그인 성공");
+        }
+        else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 실패");
         }
     }
 
     // 로그인한 사용자 정보 반환
-    @CrossOrigin(origins = "https://65d4-211-216-41-180.ngrok-free.app", allowCredentials = "true")
     @GetMapping("/me")
     public ResponseEntity<Object> getUserInfo(HttpSession session) {
         Object user = session.getAttribute("user");
@@ -122,6 +109,7 @@ public class UserController {
 
     @GetMapping("/uploads/{filename}")
     public ResponseEntity<Resource> getPhoto(@PathVariable String filename) {
+
         // 파일이 저장된 경로
         String uploadDir = "uploads/";
 
@@ -131,7 +119,9 @@ public class UserController {
         if (resource.exists()) {
             return ResponseEntity.ok().body(resource);
         } else {
+
             return ResponseEntity.status(404).body(null); // 파일이 없으면 404 반환
+
         }
     }
 
@@ -164,6 +154,7 @@ public class UserController {
             @RequestParam(value = "photo", required = false) MultipartFile photo) throws IOException {
 
         String photoPath = null;
+
         if (photo != null) {
             photoPath = savePhoto(photo);  // 새 사진 저장
         }
@@ -186,17 +177,13 @@ public class UserController {
         try {
             // 세션 무효화
             request.getSession().invalidate();
-            // SecurityContext를 초기화하여 로그인 정보 지우기
-            SecurityContextHolder.clearContext();
-            // 쿠키 제거
-            Cookie cookie = new Cookie("JSESSIONID", null);
-            cookie.setPath("/");
-            cookie.setMaxAge(0);
-            response.addCookie(cookie);
 
             return "로그아웃 성공";
+
         } catch (Exception e) {
+
             return "로그아웃 실패: " + e.getMessage();
         }
     }
+
 }

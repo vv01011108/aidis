@@ -1,5 +1,7 @@
 package com.example.social.config;
 
+// import com.example.social.filter.JwtAuthenticationFilter;
+import com.example.social.util.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -9,6 +11,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -19,6 +22,11 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    // private final JwtUtil jwtUtil;
+
+//    public SecurityConfig(JwtUtil jwtUtil) {
+//        this.jwtUtil = jwtUtil;
+//    }
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -28,15 +36,17 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())  // CSRF 비활성화
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))  // 세션 활성화
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
                         .requestMatchers("/api/users/login", "/api/users/signup", "/api/users/me",
                                 "/uploads/**", "/api/users/uploads/{filename}", "/api/users/{userId}/edit",
                                 "/api/users/{userId}", "/api/users/search", "/api/users/logout",
-                                "/api/friend-requests", "/api/friend-requests/{requsetId}").permitAll()
+                                "/api/friend-requests", "/api/friend-requests/{requsetId}",
+                                "/api/friend-requests/pending/{userId}").permitAll()
                         .anyRequest().authenticated()
                 )
+                //.addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()));  // CORS 설정
 
         return http.build();
@@ -46,10 +56,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // React 앱의 ngrok 주소를 명시적으로 설정
-
-        //configuration.addAllowedOrigin("https://65d4-211-216-41-180.ngrok-free.app");
-        //configuration.addAllowedOrigin("http://localhost:3000");
+        configuration.addAllowedOrigin("http://localhost:3000");
 
         // HTTP 메서드 허용
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "HEAD", "TRACE", "OPTIONS"));
