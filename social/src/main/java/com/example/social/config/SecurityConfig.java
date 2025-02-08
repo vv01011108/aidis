@@ -42,8 +42,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/login", "/api/users/signup", "/api/users/me",
                                 "/uploads/**", "/api/users/uploads/{filename}", "/api/users/{userId}/edit",
                                 "/api/users/{userId}", "/api/users/search", "/api/users/logout",
-                                "/api/friend-requests", "/api/friend-requests/{requsetId}",
-                                "/api/friend-requests/pending/{userId}").permitAll()
+                                "/api/friend-requests", "/api/friend-requests/{requestId}",
+                                "/api/friend-requests/pending/{userId}", "/api/friend-requests/{requestId}/accept",
+                                "/api/friend-requests/status", "/api/ranking/{userId}").permitAll()
                         .anyRequest().authenticated()
                 )
                 //.addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)

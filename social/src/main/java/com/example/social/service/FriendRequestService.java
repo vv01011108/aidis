@@ -56,12 +56,21 @@ public class FriendRequestService {
     }
 
     public Optional<Friend.Status> getRequestStatus(Long senderId, Long receiverId) {
+        // 발신자와 수신자를 찾음
         User sender = getUserById(senderId, "발신자를 찾을 수 없습니다.");
         User receiver = getUserById(receiverId, "수신자를 찾을 수 없습니다.");
 
-        return friendRequestRepository.findBySenderAndReceiver(sender, receiver)
-                .map(Friend::getStatus);
+        // sender -> receiver 방향을 먼저 확인
+        Optional<Friend> requestFromSenderToReceiver = friendRequestRepository.findBySenderAndReceiver(sender, receiver);
+        if (requestFromSenderToReceiver.isPresent()) {
+            return Optional.of(requestFromSenderToReceiver.get().getStatus());
+        }
+
+        // receiver -> sender 방향을 확인
+        Optional<Friend> requestFromReceiverToSender = friendRequestRepository.findBySenderAndReceiver(receiver, sender);
+        return requestFromReceiverToSender.map(Friend::getStatus);
     }
+
 
     public Friend acceptRequest(Long requestId) {
         Friend friendRequest = getFriendRequestById(requestId, "친구 요청을 찾을 수 없습니다.");

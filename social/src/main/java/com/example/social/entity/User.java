@@ -27,8 +27,4 @@ public class User {
     @JsonIgnore
     private String password; // 암호화된 비밀번호
 
-    // 프로필 사진 URL 반환
-    public String getPhotoUrl() {
-        return "http://localhost:8080/uploads/" + photo; // 사진 URL 형식으로 반환
-    }
 }

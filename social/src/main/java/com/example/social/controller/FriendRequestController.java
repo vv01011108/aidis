@@ -138,15 +138,28 @@ public class FriendRequestController {
             @RequestParam Long receiverId) {
         try {
             Optional<Friend.Status> status = friendRequestService.getRequestStatus(senderId, receiverId);
+
             if (status.isEmpty()) {
-                return ResponseEntity.status(404).body(Map.of(
-                        "status", "error",
-                        "message", "해당 요청이 존재하지 않습니다."
+                return ResponseEntity.ok(Map.of(  // ✅ 404 대신 200 OK
+                        "status", "success",
+                        "message", "친구 요청이 없습니다.",
+                        "data", null  // ✅ 요청이 없는 경우 명확히 표시
                 ));
             }
+
+            // 요청 상태 확인
+            Friend.Status requestStatus = status.get(); // status 객체에서 직접 상태 값을 추출합니다.
+            if (requestStatus == Friend.Status.ACCEPTED) {
+                return ResponseEntity.ok(Map.of(
+                        "status", "success",
+                        "message", "이미 친구입니다.",
+                        "data", "FRIENDS"
+                ));
+            }
+
             return ResponseEntity.ok(Map.of(
                     "status", "success",
-                    "data", status.get()
+                    "data", requestStatus
             ));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(400).body(Map.of(
@@ -155,4 +168,5 @@ public class FriendRequestController {
             ));
         }
     }
+
 }
