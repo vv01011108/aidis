@@ -13,4 +13,13 @@ public class RankingDTO {
     private String name;
     private String profilePhoto;
     private Integer rankingScore;
+
+    @Override
+    public String toString() {
+        return "RankingDTO{" +
+                "userId=" + userId +
+                ", rankingScore=" + rankingScore +
+                '}';
+    }
+
 }

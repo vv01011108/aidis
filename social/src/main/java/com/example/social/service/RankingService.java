@@ -1,9 +1,8 @@
 package com.example.social.service;
 
 import com.example.social.dto.RankingDTO;
-import com.example.social.entity.Friend;
+import com.example.social.entity.Follow;
 import com.example.social.repository.RankingRepository;
-
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,42 +19,61 @@ public class RankingService {
 
     public List<RankingDTO> getRanking(Long userId) {
 
-        // 친구 상태가 ACCEPTED인 친구 관계만 가져오기 (sender와 receiver 두 가지 기준으로 가져오기)
-        List<Friend> acceptedFriendsFromSender = rankingRepository.findByStatusAndSenderId(Friend.Status.ACCEPTED, userId);
-        List<Friend> acceptedFriendsFromReceiver = rankingRepository.findByStatusAndReceiverId(Friend.Status.ACCEPTED, userId);
+        // 팔로우 상태가 ACCEPTED 또는 FOLLOWING인 팔로우 관계만 가져오기
+        List<Follow> acceptedFollowsFromSender = rankingRepository.findByStatusAndFollowerId(Follow.Status.ACCEPTED, userId);
+        List<Follow> acceptedFollowsFromReceiver = rankingRepository.findByStatusAndFolloweeId(Follow.Status.ACCEPTED, userId);
+        List<Follow> followingFollows = rankingRepository.findByStatusAndFollowerId(Follow.Status.FOLLOWING, userId);
 
-        // 친구 관계를 바탕으로 랭킹 점수 계산 후 RankingDTO로 변환
-        return acceptedFriendsFromSender.stream()
-                .map(friend -> calculateRankingDTO(friend))
+        // 랭킹 리스트 생성
+        List<RankingDTO> rankings = acceptedFollowsFromSender.stream()
+                .map(follow -> calculateRankingDTO(follow, true))  // 내가 팔로우한 사람
+                .filter(rankingDTO -> !rankingDTO.getUserId().equals(userId))  // 본인 제외
                 .collect(Collectors.toList());
+
+        rankings.addAll(acceptedFollowsFromReceiver.stream()
+                .map(follow -> calculateRankingDTO(follow, true))  // 나를 팔로우한 사람
+                .filter(rankingDTO -> !rankingDTO.getUserId().equals(userId))  // 본인 제외
+                .toList());
+
+        rankings.addAll(followingFollows.stream()
+                .map(follow -> calculateRankingDTO(follow, false))  // 일방 팔로우
+                .filter(rankingDTO -> !rankingDTO.getUserId().equals(userId))  // 본인 제외
+                .toList());
+
+        return rankings;
     }
 
-    // 점수 계산 후 RankingDTO 반환
-    private RankingDTO calculateRankingDTO(Friend friend) {
-        // 점수 계산 로직 (친구 수 + 관심 분야 일치)
-        int rankingScore = calculateRankingScore(friend);
 
-        // 상대방이 sender일 때, receiver의 정보를 사용
+    // 점수 계산 후 RankingDTO 반환
+    private RankingDTO calculateRankingDTO(Follow follow, boolean isMutualFollow) {
+        // 점수 계산 로직 (일방 팔로우: +5, 서로 팔로우: +10, 관심 분야 같으면 +3)
+        int rankingScore = calculateRankingScore(follow, isMutualFollow);
+
+        // 상대방이 팔로우 대상일 때, 팔로워의 정보를 사용
         return new RankingDTO(
-                friend.getReceiver().getId(),
-                friend.getReceiver().getName(),
-                friend.getReceiver().getPhoto(),
+                follow.getFollowee().getId(),
+                follow.getFollowee().getName(),
+                follow.getFollowee().getPhoto(),
                 rankingScore
         );
     }
 
     // 점수 계산 예시
-    private int calculateRankingScore(Friend friend) {
+    private int calculateRankingScore(Follow follow, boolean isMutualFollow) {
         int score = 0;
 
-        // 친구 관계가 ACCEPTED 상태일 경우 점수 부여
-        if (friend.getStatus() == Friend.Status.ACCEPTED) {
-            score += 5; // 예시 점수 부여
+        // 상호 팔로우일 경우 점수 부여 (+10)
+        if (follow.getStatus() == Follow.Status.ACCEPTED) {
+            score += 10;
         }
 
-        // 여기서 관심 분야 일치 점수 추가 등 다양한 로직을 구현할 수 있습니다.
-        // 예시로 관심 분야 일치 점수 부여
-        if (friend.getReceiver().getInterest().equals(friend.getSender().getInterest())) {
+        // 일방 팔로우일 경우 점수 부여 (+5)
+        if (follow.getStatus() == Follow.Status.FOLLOWING && !isMutualFollow) {
+            score += 5;
+        }
+
+        // 관심 분야 일치 점수 추가
+        if (follow.getFollowee().getInterest().equals(follow.getFollower().getInterest())) {
             score += 3; // 관심 분야가 같으면 3점 추가
         }
 

@@ -9,25 +9,28 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Friend {
+public class Follow {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "sender_id", nullable = false)
-    private User sender; // 친구 요청을 보낸 사용자
+    @JoinColumn(name = "follower_id", nullable = false)
+    private User follower; // 팔로워
 
     @ManyToOne
-    @JoinColumn(name = "receiver_id", nullable = false)
-    private User receiver; // 친구 요청을 받은 사용자
+    @JoinColumn(name = "followee_id", nullable = false)
+    private User followee; // 팔로잉 대상
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status; // 요청 상태 (PENDING, ACCEPTED, REJECTED)
+    private Status status; // 팔로우 상태 (FOLLOWING, ACCEPTED)
 
     public enum Status {
-        PENDING, ACCEPTED, REJECTED
+        FOLLOWING, // 일방 팔로우
+        ACCEPTED,   // 맞팔로우
+        NONE;
     }
 }
+

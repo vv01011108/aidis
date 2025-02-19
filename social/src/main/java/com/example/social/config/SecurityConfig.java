@@ -42,9 +42,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/login", "/api/users/signup", "/api/users/me",
                                 "/uploads/**", "/api/users/uploads/{filename}", "/api/users/{userId}/edit",
                                 "/api/users/{userId}", "/api/users/search", "/api/users/logout",
-                                "/api/friend-requests", "/api/friend-requests/{requestId}",
-                                "/api/friend-requests/pending/{userId}", "/api/friend-requests/{requestId}/accept",
-                                "/api/friend-requests/status", "/api/ranking/{userId}").permitAll()
+                                "/api/follow", "/api/follow/followers/{userId}", "/api/follow/status",
+                                "/api/follow/followees/{userId}", "/api/follow/mutual", "/api/follow/followers-list/{userId}",
+                                "/api/ranking/{userId}").permitAll()
                         .anyRequest().authenticated()
                 )
                 //.addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
