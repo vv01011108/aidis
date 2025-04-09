@@ -1,0 +1,121 @@
+/* 기본적인 페이지 레이아웃 설정 */
+.edit-profile-container {
+  width: 50%;
+  margin: 0 auto; /* 수평 중앙 정렬 */
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex; /* 컨테이너 안의 내용을 중앙 정렬 */
+  flex-direction: column;
+  align-items: center; /* 수평 중앙 정렬 */
+}
+
+/* 제목 스타일 */
+.edit-profile-container h2 {
+  text-align: center;
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* 폼 레이아웃 설정 */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%; /* 폼을 컨테이너 너비에 맞춤 */
+  max-width: 400px; /* 폼 최대 너비 제한 */
+}
+
+/* 각 폼 입력 항목 */
+label {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="file"] {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  width: 100%; /* 입력 필드를 가득 채움 */
+  box-sizing: border-box;
+  text-align: left; /* 텍스트를 왼쪽 정렬 */
+}
+
+input[type="file"] {
+  padding: 5px;
+}
+
+/* 폼 항목의 포커스 상태 */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="file"]:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* 제출 버튼 스타일 */
+button {
+  padding: 12px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+  text-align: center; /* 버튼 내부 텍스트는 중앙 정렬 */
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .edit-profile-container {
+      width: 80%;
+  }
+
+  form {
+      max-width: 100%; /* 작은 화면에서는 폼의 최대 너비를 없앰 */
+  }
+}
+
+.interest-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px; /* 버튼 간격 살짝 늘림 */
+  margin-top: 10px;
+  justify-content: center; /* 버튼을 가운데 정렬 */
+}
+
+.interest-item {
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 20px; /* 둥근 테두리로 더 부드러운 느낌 */
+  cursor: pointer;
+  text-align: center;
+  background-color: #f9f9f9;
+  font-size: 14px;
+  color: #333;
+  transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+}
+
+.interest-item:hover {
+  background-color: #e6f7ff;
+  border-color: #007bff;
+  color: #007bff; /* 호버 시 텍스트 색상 변경 */
+}
+
+.interest-item.selected {
+  background-color: #007bff;
+  color: white;
+  border-color: #0056b3;
+}
+

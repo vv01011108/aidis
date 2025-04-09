@@ -1,0 +1,99 @@
+/* 기본 스타일 */
+.followers-list {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h3 {
+  font-size: 24px;
+  color: #333;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+h4 {
+  font-size: 20px;
+  color: #555;
+  margin-top: 20px;
+}
+
+/* 팔로워 항목 스타일 */
+.follower-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #fff;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+.follower-item:hover {
+  background-color: #f1f1f1;
+}
+
+.follower-item p {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.follower-item button {
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.follower-item button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.follower-item button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+/* FOLLOWING 상태의 팔로워들 */
+.following-users {
+  background-color: #e3f2fd;
+  border-left: 4px solid #2196f3;
+}
+
+.following-users h4 {
+  color: #2196f3;
+}
+
+/* ACCEPTED 상태의 팔로워들 */
+.accepted-users {
+  background-color: #e8f5e9;
+  border-left: 4px solid #4caf50;
+}
+
+.accepted-users h4 {
+  color: #4caf50;
+}
+
+/* 로딩 상태 스타일 */
+.loading {
+  text-align: center;
+  font-size: 18px;
+  color: #555;
+}
+
+/* 팔로워가 없을 때 표시되는 메시지 */
+.no-followers {
+  text-align: center;
+  font-size: 18px;
+  color: #888;
+}
