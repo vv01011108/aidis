@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>도서 관리 프로그램</title>
+  <link rel="stylesheet" href="css/book_management.css">
+</head>
+<body>
+<header>
+  <h1>도서 관리 프로그램</h1>
+  <p>사용자: <span id="username"></span></p>
+  <button id="logout">로그아웃</button>
+</header>
+
+<div class="container">
+  <h2>도서 등록</h2>
+  <form id="bookForm">
+    <label for="bookTitle">도서 제목</label>
+    <input type="text" id="bookTitle" required>
+
+    <label for="bookAuthor">저자</label>
+    <input type="text" id="bookAuthor" required>
+
+    <label for="bookPublisher">출판사</label>
+    <input type="text" id="bookPublisher" required>
+
+    <label for="bookGenre">장르</label>
+    <input type="text" id="bookGenre" required>
+
+    <button type="submit">등록하기</button>
+  </form>
+
+  <h2>도서 목록</h2>
+
+  <!-- 검색란 추가 -->
+  <div>
+    <label for="searchInput">검색:</label>
+    <input type="text" id="searchInput" placeholder="제목, 저자 또는 장르로 검색">
+    <button id="searchButton">검색</button>
+    <button id="resetButton">목록 초기화</button> <!-- 초기화 버튼 추가 -->
+  </div>
+
+  <table id="bookList">
+    <thead>
+    <tr>
+      <th>제목</th>
+      <th>저자</th>
+      <th>출판사</th>
+      <th>장르</th>
+      <th>상태</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- 도서 목록이 여기에 추가됩니다. -->
+    </tbody>
+  </table>
+</div>
+
+<script src="js/book_management.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+FROM mysql:8.0
+
+# 환경 변수를 설정합니다.
+ENV MYSQL_ROOT_PASSWORD=kjy08191108@
+ENV MYSQL_DATABASE=book
+ENV MYSQL_USER=user
+ENV MYSQL_PASSWORD=user1234
+
+VOLUME [/var/lib/mysql]
+
+EXPOSE 13306
+
+CMD ["mysqld"]
